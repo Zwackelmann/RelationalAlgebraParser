@@ -4,7 +4,7 @@ import java.io.FileInputStream
 import java.util.{Properties => JavaProperties}
 
 object Properties {
-    val is = new FileInputStream("relalg.properties")
+    val is = new FileInputStream("data/relalg.properties")
     val properties = new JavaProperties()
     properties.load(is)
         

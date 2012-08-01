@@ -1,11 +1,14 @@
 package relation
 
-case class Attribute(val name: String, val origin: Option[String]) {
+object Attribute {
+    def apply(name: String, origin: Option[String]) = new Attribute(name, origin)
+}
+
+class Attribute(val name: String, val origin: Option[String]) {
     override def toString = "Attribute(" + name + ")"
 }
 
 class RelationHead(val atts: List[Attribute]) {
-    
     def attribute(qualifiedAttName: String) = {
         val parts = qualifiedAttName.split("\\.").toList
         
@@ -111,11 +114,29 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
         )
     }
 
-    def leftSemiJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = 
-        new Relation(relationHead, for(tuple <- content; tuple2 <- relation.content if(cond(relationHead, tuple ++ tuple2))) yield tuple)
+    def leftSemiJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+        val tempRelationHead = new RelationHead(relationHead.atts ++ relation.relationHead.atts)
+        new Relation(relationHead, for(tuple <- content; tuple2 <- relation.content if(cond(tempRelationHead, tuple ++ tuple2))) yield tuple)
+    }
+        
+    def rightSemiJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+        val tempRelationHead = new RelationHead(relationHead.atts ++ relation.relationHead.atts)
+        new Relation(relation.relationHead, for(tuple <- content; tuple2 <- relation.content if(cond(tempRelationHead, tuple ++ tuple2))) yield tuple2)
+    }
     
-    def rightSemiJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = 
-        new Relation(relation.relationHead, for(tuple <- content; tuple2 <- relation.content if(cond(relation.relationHead, tuple ++ tuple2))) yield tuple2)
+    def leftOutherJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+        val relHead = relationHead.union(relation.relationHead)
+        val content = for(tuple <- content) yield {
+            ((((List().asInstanceOf[List[Map[Attribute, Any]]]), false) /: relation.content) (results, hasPartner) => (
+                if(cond(relHead, tuple ++ tuple2)) (results :: List(tuple ++ tuple2), true)
+                else (results, hasPartner)
+            ))
+        }
+        
+        new Relation(
+            relHead,
+        )
+    }
     
     def aggregate(attNameList: List[String], aggFun: (List[Map[Attribute, Any]] => Any)) = {
         val aggregatedColAttribute = Attribute("col_" + (attNameList.size + 1), None)    
@@ -170,6 +191,19 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
     def union(rel: Relation) = setOperator(rel, (a: List[Map[Attribute, Any]], b: List[Map[Attribute, Any]]) => a union b)
     def except(rel: Relation) = setOperator(rel, (a: List[Map[Attribute, Any]], b: List[Map[Attribute, Any]]) => a -- b)
     
+    def crossProduct(rel: Relation) = {
+        val thisRelHeaderMapping = relationHead.atts.map(att => att -> new Attribute(att.name, att.origin)).toMap
+        val otherRelHeaderMapping = rel.relationHead.atts.map(att => att -> new Attribute(att.name, att.origin)).toMap
+        
+        val newRelationHead = new RelationHead(thisRelHeaderMapping.map(_._2).toList ++ otherRelHeaderMapping.map(_._2).toList)
+        
+        val newContent = for(thisRelTuple <- content; otherRelTuple <- rel.content) yield (
+            thisRelTuple.map(value => thisRelHeaderMapping(value._1) -> value._2) ++ 
+            otherRelTuple.map(value => otherRelHeaderMapping(value._1) -> value._2)
+        )
+        new Relation(newRelationHead, newContent)
+    }
+    
     def unbindTuple(tuple: Map[Attribute, Any]) = tuple.map(att_value => att_value._1.name -> att_value._2)
         
     def prettyPrint = {
@@ -198,5 +232,30 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
         sb.toString
     }
     
+    def toJson = {
+        val out = new StringBuffer()
+        
+        out.append("{")
+        
+        out.append("\"head\" : [" + relationHead.atts.map(att => "\"" + att.name + "\"").mkString(", ") + "], ")
+        
+        val contentString = ("[" + (for(tuple <- content) yield {
+        	"[" + relationHead.atts.map(att => tuple(att) match {
+        	    case s => "\"" + s + "\""
+        	}).mkString(", ") + "]"
+        }).mkString(", ") + "]") 
+        out.append("\"content\" : " + contentString)
+        
+        out.append("}")
+        
+        out.toString
+    }
+    
     override def toString = "Relation(" + content.toString + ")"
 }
+
+
+
+
+
+

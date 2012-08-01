@@ -9,8 +9,8 @@ case class Lexem[+T](val value: T)
 class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParsers {
     import lexical.{Keyword, NumericLit, StringLit, Identifier}
     
-    lexical.delimiters ++= List("(", ")", "|", ",", "<=", "<", ">=", ">", "=", "[X]", "[X", "X]", "*", "!", ".", "+", "-", "*", "/")
-    lexical.reserved += ("select", "project", "rename", "F", "and", "or", "intersect", "union", "except")
+    lexical.delimiters ++= List("(", ")", "|", ",", "<=", "<", ">=", ">", "=", "*", "!", ".", "+", "-", "*", "/")
+    lexical.reserved += ("select", "project", "rename", "aggregate", "and", "or", "intersect", "union", "except", "cross", "join", "inner", "leftsemi", "rightsemi", "leftouther", "rightouther", "fullouther")
 
     def eval(query: String) = {
         val inReader = scala.util.parsing.input.StreamReader(new StringReader(query))
@@ -34,16 +34,18 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
                 case "intersect" => rel.intersect(rel2)
                 case "union" => rel.union(rel2)
                 case "except" => rel.except(rel2)
+                case "cross" => rel.crossProduct(rel2)
             }
         }
         case (rel: Relation) ~ None => rel
     }
     
     lazy val setOperatorSymbol: PackratParser[String] = 
-        ("intersect" | "union" | "except") ^^ {
+        ("intersect" | "union" | "except" | "cross") ^^ {
         case "intersect" => "intersect"
         case "union" => "union"
         case "except" => "except"
+        case "cross" => "cross"
     }
         
     def attNameList2Cond(attNameList: List[String], rel1: Relation, rel2: Relation) = (relationHead: RelationHead, tuple: Map[Attribute, Any]) => 
@@ -51,52 +53,61 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     
     lazy val relation2: PackratParser[Relation] = 
         relation3 ~ (
-            joinSymbol ~ (
+            "join" ~ "(" ~ joinType ~ ")" ~ (
                 (cond | attList) ~ relation | 
                 error("missing join condition or relation after join symbol")
             )
         ).? ^^ {
         case rel1 ~ Some(
-	             symbol ~ (
+	            "join" ~ "(" ~ joinType ~ ")" ~ (
 	                (cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) ~ rel2
-	            )) => symbol match {
-	                    case "[X]" => rel1.join(rel2, cond)
-	                    case "[X" => rel1.leftSemiJoin(rel2, cond)
-	                    case "X]" => rel1.rightSemiJoin(rel2, cond)
-	                }
+	            )) => joinType match {
+                    case "inner" => rel1.join(rel2, cond)
+                    case "leftsemi" => rel1.leftSemiJoin(rel2, cond)
+                    case "rightsemi" => rel1.rightSemiJoin(rel2, cond)
+                    case "leftouther" => rel1.join(rel2, cond) // TODO
+                    case "rightouther" => rel1.join(rel2, cond) // TODO
+                    case "fullouther" => rel1.join(rel2, cond) // TODO
+                }
         case rel1 ~ Some(
-	             symbol ~ (
+	            "join" ~ "(" ~ joinType ~ ")" ~ (
 	                (attNameList: List[String]) ~ rel2
-	            )) => symbol match {
-	                    case "[X]" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2))
-	                    case "[X" => rel1.leftSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
-	                    case "X]" => rel1.rightSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
-	                }
+	            )) => joinType match {
+                	case "inner" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "leftsemi" => rel1.leftSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "rightsemi" => rel1.rightSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "leftouther" => rel1.leftOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2)) // TODO
+                    case "rightouther" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2)) // TODO
+                    case "fullouther" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2)) // TODO
+                }
 	    case rel1 ~ None => rel1
     }
     
-    lazy val joinSymbol: PackratParser[String] = 
-        ("[X]" | "[X" | "X]") ^^ {
-        case "[X]" => "[X]"
-        case "[X" => "[X"
-        case "X]" => "X]"
+    lazy val joinType: PackratParser[String] = 
+        ("inner" | "leftsemi" | "rightsemi" | "leftouther" | "rightouther" | "fullouther") ^^ {
+        case "inner" => "inner"
+        case "leftsemi" => "leftsemi"
+        case "rightsemi" => "rightsemi"
+        case "leftouther" => "leftouther"
+        case "rightouther" => "rightouther"
+        case "fullouther" => "fullouther"
     }
-    
+        
     lazy val relation3: PackratParser[Relation] = 
         (
-            "F" ~ (aggFun ~ relation3 | error("Invalid or missing aggregation function or relation after \"F\"")) | 
-            attList ~ "F" ~ (aggFun ~ relation3 | error("Invalid or missing aggregation function or relation after \"F\"")) |
+            "aggregate" ~ (aggFun ~ relation3 | error("Invalid or missing aggregation function or relation after \"F\"")) | 
+            attList ~ "aggregate" ~ (aggFun ~ relation3 | error("Invalid or missing aggregation function or relation after \"F\"")) |
             relation4
         ) ^^ {
         case (relation: Relation) => relation
         case 
             (attList: List[String]) ~ 
-            "F" ~ 
+            "aggregate" ~ 
             ((aggFun: ((Relation, List[Map[Attribute, Any]]) => Any)) ~ 
             (relation: Relation))
                 => relation.aggregate(attList, aggFun(relation, _))
         case 
-            "F" ~ 
+            "aggregate" ~ 
             ((aggFun: ((Relation, List[Map[Attribute, Any]]) => Any)) ~ 
             (relation: Relation))
                 => relation.aggregate(aggFun(relation, _))
