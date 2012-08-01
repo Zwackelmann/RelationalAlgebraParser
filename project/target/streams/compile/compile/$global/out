@@ -1,15 +1,27 @@
-[debug] 
-[debug] Initial source changes: 
-[debug] 	removed:Set()
-[debug] 	added: Set()
-[debug] 	modified: Set()
-[debug] Removed products: Set()
-[debug] Modified external sources: Set()
-[debug] Modified binary dependencies: Set()
-[debug] Initial directly invalidated sources: Set()
-[debug] 
-[debug] Sources indirectly invalidated by:
-[debug] 	product: Set()
-[debug] 	binary dep: Set()
-[debug] 	external source: Set()
-[debug] Initially invalidated: Set()
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mInitial source changes: [0m
+[0m[[0mdebug[0m] [0m	removed:Set(C:\Users\Simon\workspace\RelAlg\project\Build.scala)[0m
+[0m[[0mdebug[0m] [0m	added: Set(C:\Users\Simon\workspace\RelationalAlgebraParser\project\Build.scala)[0m
+[0m[[0mdebug[0m] [0m	modified: Set()[0m
+[0m[[0mdebug[0m] [0mRemoved products: Set()[0m
+[0m[[0mdebug[0m] [0mModified external sources: Set()[0m
+[0m[[0mdebug[0m] [0mModified binary dependencies: Set(C:\Users\Simon\Programme\play-2.0.2\repository\local\org.scala-sbt\main_2.9.1\0.11.3\jars\main_2.9.1.jar, C:\Program Files\Java\jre7\lib\rt.jar, C:\Users\Simon\Programme\play-2.0.2\repository\local\org.scala-sbt\sbt_2.9.1\0.11.3\jars\sbt_2.9.1.jar, C:\Users\Simon\Programme\play-2.0.2\framework\.\sbt\boot\scala-2.9.1\lib\scala-library.jar)[0m
+[0m[[0mdebug[0m] [0mInitial directly invalidated sources: Set(C:\Users\Simon\workspace\RelAlg\project\Build.scala, C:\Users\Simon\workspace\RelationalAlgebraParser\project\Build.scala)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mSources indirectly invalidated by:[0m
+[0m[[0mdebug[0m] [0m	product: Set()[0m
+[0m[[0mdebug[0m] [0m	binary dep: Set(C:\Users\Simon\workspace\RelAlg\project\Build.scala)[0m
+[0m[[0mdebug[0m] [0m	external source: Set()[0m
+[0m[[0mdebug[0m] [0mInitially invalidated: Set(C:\Users\Simon\workspace\RelAlg\project\Build.scala, C:\Users\Simon\workspace\RelationalAlgebraParser\project\Build.scala)[0m
+[0m[[0minfo[0m] [0mCompiling 1 Scala source to C:\Users\Simon\workspace\RelationalAlgebraParser\project\target\scala-2.9.1\sbt-0.11.3\classes...[0m
+[0m[[0mdebug[0m] [0mInterfacing (CompilerInterface) with Scala compiler version 2.9.1.final[0m
+[0m[[0mdebug[0m] [0mCalling Scala compiler with arguments  (CompilerInterface):[0m
+[0m[[0mdebug[0m] [0m	-d[0m
+[0m[[0mdebug[0m] [0m	C:\Users\Simon\workspace\RelationalAlgebraParser\project\target\scala-2.9.1\sbt-0.11.3\classes[0m
+[0m[[0mdebug[0m] [0m	-bootclasspath[0m
+[0m[[0mdebug[0m] [0m	C:\Program Files\Java\jdk1.7.0_02\jre\lib\resources.jar;C:\Program Files\Java\jdk1.7.0_02\jre\lib\rt.jar;C:\Program Files\Java\jdk1.7.0_02\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.7.0_02\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.7.0_02\jre\lib\jce.jar;C:\Program Files\Java\jdk1.7.0_02\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.7.0_02\jre\classes;C:\Users\Simon\.sbt\boot\scala-2.9.1\lib\scala-library.jar[0m
+[0m[[0mdebug[0m] [0m	-classpath[0m
+[0m[[0mdebug[0m] [0m	C:\Users\Simon\workspace\RelationalAlgebraParser\project\target\scala-2.9.1\sbt-0.11.3\classes;C:\Users\Simon\.ivy2\cache\org.scala-sbt\sbt_2.9.1\jars\sbt_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\main_2.9.1\jars\main_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\actions_2.9.1\jars\actions_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\classfile_2.9.1\jars\classfile_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\io_2.9.1\jars\io_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\control_2.9.1\jars\control_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\interface\jars\interface-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\logging_2.9.1\jars\logging_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\process_2.9.1\jars\process_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\classpath_2.9.1\jars\classpath_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\launcher-interface_2.9.1\jars\launcher-interface_2.9.1-0.11.3.jar;C:\Users\Simon\.sbt\boot\scala-2.9.1\lib\scala-compiler.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\incremental-compiler_2.9.1\jars\incremental-compiler_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\collections_2.9.1\jars\collections_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\api_2.9.1\jars\api_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\persist_2.9.1\jars\persist_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-tools.sbinary\sbinary_2.9.0\jars\sbinary_2.9.0-0.4.0.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\compile_2.9.1\jars\compile_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\ivy_2.9.1\jars\ivy_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.apache.ivy\ivy\jars\ivy-2.2.0.jar;C:\Users\Simon\.ivy2\cache\com.jcraft\jsch\jars\jsch-0.1.46.jar;C:\Users\Simon\.ivy2\cache\commons-httpclient\commons-httpclient\jars\commons-httpclient-3.1.jar;C:\Users\Simon\.ivy2\cache\commons-logging\commons-logging\jars\commons-logging-1.0.4.jar;C:\Users\Simon\.ivy2\cache\commons-codec\commons-codec\jars\commons-codec-1.2.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\completion_2.9.1\jars\completion_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\jline\jline\jars\jline-0.9.94.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\run_2.9.1\jars\run_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\task-system_2.9.1\jars\task-system_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\tasks_2.9.1\jars\tasks_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\tracking_2.9.1\jars\tracking_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\cache_2.9.1\jars\cache_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\testing_2.9.1\jars\testing_2.9.1-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-tools.testing\test-interface\jars\test-interface-0.5.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\compiler-interface\jars\compiler-interface-bin-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\compiler-interface\jars\compiler-interface-src-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\precompiled-2_8_2\jars\compiler-interface-bin-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\precompiled-2_8_1\jars\compiler-interface-bin-0.11.3.jar;C:\Users\Simon\.ivy2\cache\org.scala-sbt\precompiled-2_9_2\jars\compiler-interface-bin-0.11.3.jar[0m
+[0m[[0mdebug[0m] [0m	C:\Users\Simon\workspace\RelationalAlgebraParser\project\Build.scala[0m
+[0m[[0mdebug[0m] [0m	Invalidated direct: Set()[0m
+[0m[[0mdebug[0m] [0mIncrementally invalidated: Set()[0m

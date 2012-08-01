@@ -126,15 +126,62 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
     
     def leftOutherJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
         val relHead = relationHead.union(relation.relationHead)
-        val content = for(tuple <- content) yield {
-            ((((List().asInstanceOf[List[Map[Attribute, Any]]]), false) /: relation.content) (results, hasPartner) => (
-                if(cond(relHead, tuple ++ tuple2)) (results :: List(tuple ++ tuple2), true)
-                else (results, hasPartner)
-            ))
-        }
+        val newContent = (for(tuple <- content) yield {
+            val joinPartnersForTuple = for(tuple2 <- relation.content if(cond(relHead, tuple ++ tuple2))) yield tuple ++ tuple2
+            
+            if(joinPartnersForTuple.isEmpty) {
+                List(tuple ++ (relation.relationHead.atts.map(att => att -> null)).toMap)
+            } else {
+                joinPartnersForTuple
+            }
+        }).flatten
         
         new Relation(
-            relHead,
+            relHead, newContent
+        )
+    }
+    
+    def rightOutherJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+        val relHead = relationHead.union(relation.relationHead)
+        val newContent = (for(tuple <- relation.content) yield {
+            val joinPartnersForTuple = for(tuple2 <- content if(cond(relHead, tuple ++ tuple2))) yield tuple ++ tuple2
+            
+            if(joinPartnersForTuple.isEmpty) {
+                List(tuple ++ (relationHead.atts.map(att => att -> null)).toMap)
+            } else {
+                joinPartnersForTuple
+            }
+        }).flatten
+        
+        new Relation(
+            relHead, newContent
+        )
+    }
+    
+    def fullOutherJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+        val relHead = relationHead.union(relation.relationHead)
+        val newContentLeftOutherJoin = (for(tuple <- content) yield {
+            val joinPartnersForTuple = for(tuple2 <- relation.content if(cond(relHead, tuple ++ tuple2))) yield tuple ++ tuple2
+            
+            if(joinPartnersForTuple.isEmpty) {
+                List(tuple ++ (relation.relationHead.atts.map(att => att -> null)).toMap)
+            } else {
+                joinPartnersForTuple
+            }
+        }).flatten
+        
+        val missingTuplesFromRightRelation = (for(tuple <- relation.content) yield {
+            val joinPartnersForTuple = for(tuple2 <- content if(cond(relHead, tuple ++ tuple2))) yield tuple ++ tuple2
+            
+            if(joinPartnersForTuple.isEmpty) {
+                List(List(tuple ++ (relationHead.atts.map(att => att -> null)).toMap))
+            } else {
+                List()
+            }
+        }).flatten.flatten
+        
+        new Relation(
+            relHead, (newContentLeftOutherJoin ++ missingTuplesFromRightRelation)
         )
     }
     
@@ -209,24 +256,26 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
     def prettyPrint = {
         val sb = new StringBuffer
         
-        def attributeWidth(attribute: Attribute) = 
-            (content.map(tuple => tuple(attribute).toString().length) :+ attribute.name.length).max
+        def calulateAttributeWidth(att: Attribute) = 
+        	(content.map(tuple => (if(tuple(att) == null) "null" else tuple(att).toString()).length) :+ att.name.length).max
         
-        val attributeWidths = relationHead.atts.map(att => att -> attributeWidth(att)).toMap
+        val attributeWidths = relationHead.atts.map(att => att -> calulateAttributeWidth(att)).toMap
+        
         val totalWidth = ((0 /: attributeWidths)((old, attWidth) => old + attWidth._2)) + (3*attributeWidths.size) + 1
         
         for(att <- relationHead.atts) {
             sb.append(("| %-" + attributeWidths(att) + "s ").format(att.name))
         }
-        sb.append("|")
+        sb.append("|\n")
         sb.append("-" * totalWidth)
+        sb.append("\n")
         
         for(tuple <- content) {
             for(att <- relationHead.atts) {
                 val align = if(tuple(att).isInstanceOf[Int]) "" else "-"
                 sb.append(("| %" + align + attributeWidths(att) + "s ").format(tuple(att)))
             }
-            sb.append("|")
+            sb.append("|\n")
         }
         
         sb.toString

@@ -65,9 +65,9 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
                     case "inner" => rel1.join(rel2, cond)
                     case "leftsemi" => rel1.leftSemiJoin(rel2, cond)
                     case "rightsemi" => rel1.rightSemiJoin(rel2, cond)
-                    case "leftouther" => rel1.join(rel2, cond) // TODO
-                    case "rightouther" => rel1.join(rel2, cond) // TODO
-                    case "fullouther" => rel1.join(rel2, cond) // TODO
+                    case "leftouther" => rel1.leftOutherJoin(rel2, cond)
+                    case "rightouther" => rel1.rightOutherJoin(rel2, cond)
+                    case "fullouther" => rel1.fullOutherJoin(rel2, cond)
                 }
         case rel1 ~ Some(
 	            "join" ~ "(" ~ joinType ~ ")" ~ (
@@ -76,9 +76,9 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
                 	case "inner" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2))
                     case "leftsemi" => rel1.leftSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
                     case "rightsemi" => rel1.rightSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
-                    case "leftouther" => rel1.leftOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2)) // TODO
-                    case "rightouther" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2)) // TODO
-                    case "fullouther" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2)) // TODO
+                    case "leftouther" => rel1.leftOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "rightouther" => rel1.rightOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "fullouther" => rel1.fullOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
                 }
 	    case rel1 ~ None => rel1
     }
