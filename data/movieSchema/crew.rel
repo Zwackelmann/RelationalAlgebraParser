@@ -1,0 +1,8 @@
+| person | movie | type        |
+--------------------------------
+|      6 |     1 | "director"  |
+|      7 |     2 | "director"  |
+|      6 |     3 | "director"  |
+|      6 |     4 | "director"  |
+|      6 |     5 | "director"  |
+|      7 |     5 | "director"  |

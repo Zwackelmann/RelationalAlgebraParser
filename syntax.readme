@@ -1,0 +1,35 @@
+Syntaxbeispiele:
+    Selektion:
+      σ|matNr=1234321| student
+      σ|name="Bob"| student
+    
+    Projektion:
+      π|att1, att2| rel
+ 
+    Umbenennung:
+      - Attribute umbenennen
+          ρ|(newAtt1, newAtt2, newAtt3)| rel
+      - Relation umbenennen
+          ρ|newRel| oldRel
+      - Beides umbenennen
+          ρ|newRel(newAtt1, newAtt2, newAtt3)| oldRel
+ 
+    Aggregation:
+      |att1, att2|F|count(*)| rel
+      |att1, att2|F|count(att)| rel
+      F|count(*)| rel
+      F|sum(att)| rel
+ 
+    Join:
+      rel1 [X]|pkey=fkey| rel2
+      rel1 [X|pkey=fkey| rel2
+      rel1 X]|pkey=fkey| rel2
+      rel1 [X]|att1, att2| rel2
+ 
+    Setoperatoren:
+       rel1 union rel2
+       rel1 intersect rel2
+       rel1 except rel2
+       
+       
+       

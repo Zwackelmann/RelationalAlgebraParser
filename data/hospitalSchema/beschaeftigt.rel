@@ -1,0 +1,7 @@
+| stationHaus | stationStockwerk | stationNr | pfleger  |
+---------------------------------------------------------
+|  "G"        |                3 |         1 | "Peter"  |
+|  "G"        |                3 |         1 | "Ines"   |
+|  "H"        |                4 |         3 | "Jochen" |
+|  "H"        |                4 |         3 | "Anne"   |
+|  "G"        |                3 |         2 | "Anne"   |

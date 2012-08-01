@@ -1,0 +1,30 @@
+/* Zum copy-pasten: σπρ */
+ 
+// Beispiel:
+/*person[X]|pid=person|(
+    ρ|(person)|((π|person| σ|numMovies>=2| ρ|(person, numMovies)| |person|F|count(*)|(
+        plays [X|movie|
+        σ|type="director"| crew [X]|person=pid|
+        σ|name="PJ"| person
+    )) except (
+        π|person| σ|role="hobbit"| plays
+    ))
+)*/
+
+/*(π|beschreibung| symptom) except
+(π|symptom| wirktGegen)
+*/
+
+// es wird "> 1" statt "> 10" gefragt, da nur sehr wenige Daten in den Relationen stehen
+// und ansonsten kein Ergebnis erscheinen würde.  
+σ|numPat/numPfle > 1| (
+    ρ|(sHaus, sStock, sNr, numPat)||stationHaus, stationStockwerk, stationNr|F|count(*)|(
+        patientInRaum
+    ) [X]|sHaus, sStock, sNr|
+    ρ|(sHaus, sStock, sNr, numPfle)||stationHaus, stationStockwerk, stationNr|F|count(*)|(
+    	beschaeftigt
+    )
+)
+
+
+

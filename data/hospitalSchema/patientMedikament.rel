@@ -1,0 +1,8 @@
+| patient | medikament     | frequenz | dosis |
+-----------------------------------------------
+|       1 | "Aspirin"      |        1 |     1 |
+|       2 | "Aspirin"      |        2 |     1 |
+|       3 | "Augenklappe"  |        1 |     1 |
+|       3 | "Holzbein"     |        1 |     2 |
+|       4 | "Aspirin"      |        3 |     3 |
+|       6 | "Haken"        |        1 |     1 |

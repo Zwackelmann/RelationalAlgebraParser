@@ -1,0 +1,19 @@
+| person | movie | role        |
+--------------------------------
+|      1 |     1 | "hobbit"    |
+|      3 |     1 | "someRole"  |
+|      5 |     1 | "someRole"  |
+|      2 |     2 | "someRole"  |
+|      1 |     2 | "someRole"  |
+|      4 |     2 | "someRole"  |
+|      5 |     3 | "someRole"  |
+|      2 |     3 | "someRole"  |
+|      3 |     3 | "someRole"  |
+|      4 |     3 | "someRole"  |
+|      1 |     3 | "someRole"  |
+|      3 |     4 | "someRole"  |
+|      4 |     4 | "someRole"  |
+|      1 |     5 | "someRole"  |
+|      2 |     5 | "someRole"  |
+|      3 |     5 | "someRole"  |
+|      6 |     5 | "someRole"  |

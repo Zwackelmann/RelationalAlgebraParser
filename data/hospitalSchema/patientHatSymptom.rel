@@ -1,0 +1,10 @@
+| patient | symptom                |
+------------------------------------
+|       1 | "Husten"               |
+|       1 | "Kopfweh"              |
+|       2 | "Kopfweh"              |
+|       3 | "Husten"               |
+|       3 | "Fehlende Gliedmaﬂen"  |
+|       4 | "Kopfweh"              |
+|       5 | "Husten"               |
+|       6 | "Fehlende Gliedmaﬂen"  |

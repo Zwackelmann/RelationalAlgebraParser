@@ -1,0 +1,8 @@
+| medikament    | raumNr | stationHaus | stationStockwerk | stationNr |
+--------------------------------------------------------------------
+| "Holzbein"    |      3 |         "G" |                3 |         1 |
+| "Augenklappe" |      3 |         "G" |                3 |         1 |
+| "Haken"       |      3 |         "G" |                3 |         1 |
+| "Dipidolor"   |      3 |         "H" |                4 |         3 |
+| "Aspirin"     |      3 |         "H" |                4 |         3 |
+| "Holzbein"    |      3 |         "H" |                4 |         3 |
