@@ -9,3 +9,4 @@ bin
 build.bat
 lib
 target
+project/target

@@ -281,25 +281,6 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
         sb.toString
     }
     
-    def toJson = {
-        val out = new StringBuffer()
-        
-        out.append("{")
-        
-        out.append("\"head\" : [" + relationHead.atts.map(att => "\"" + att.name + "\"").mkString(", ") + "], ")
-        
-        val contentString = ("[" + (for(tuple <- content) yield {
-        	"[" + relationHead.atts.map(att => tuple(att) match {
-        	    case s => "\"" + s + "\""
-        	}).mkString(", ") + "]"
-        }).mkString(", ") + "]") 
-        out.append("\"content\" : " + contentString)
-        
-        out.append("}")
-        
-        out.toString
-    }
-    
     override def toString = "Relation(" + content.toString + ")"
 }
 

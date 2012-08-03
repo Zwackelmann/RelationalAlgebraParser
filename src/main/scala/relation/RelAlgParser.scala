@@ -9,8 +9,8 @@ case class Lexem[+T](val value: T)
 class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParsers {
     import lexical.{Keyword, NumericLit, StringLit, Identifier}
     
-    lexical.delimiters ++= List("(", ")", "|", ",", "<=", "<", ">=", ">", "=", "*", "!", ".", "+", "-", "*", "/")
-    lexical.reserved += ("select", "project", "rename", "aggregate", "and", "or", "intersect", "union", "except", "cross", "join", "inner", "leftsemi", "rightsemi", "leftouther", "rightouther", "fullouther")
+    lexical.delimiters ++= List("(", ")", "|", ",", "<=", "<", ">=", ">", "!=", "=", "*", ".", "+", "-", "*", "/")
+    lexical.reserved += ("select", "project", "rename", "aggregate", "and", "or", "not", "intersect", "union", "except", "cross", "join", "inner", "leftsemi", "rightsemi", "leftouther", "rightouther", "fullouther")
 
     def eval(query: String) = {
         val inReader = scala.util.parsing.input.StreamReader(new StringReader(query))
@@ -23,12 +23,12 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     }
     
     lazy val relation: PackratParser[Relation] = 
-        relation2 ~ (
+        phrase(relation2 ~ (
             setOperatorSymbol ~ (
                 relation | 
                 error("missing relation after set operator")
             )
-        ).? ^^ {
+        ).?) ^^ {
         case (rel: Relation) ~ Some(operator ~ (rel2: Relation)) => {
             operator match {
                 case "intersect" => rel.intersect(rel2)
@@ -189,15 +189,16 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
         
     lazy val negateTerm: PackratParser[(RelationHead, Map[Attribute, Any]) => Boolean] = 
         (
-            "!" ~ mathRelation | 
+            "not" ~ mathRelation | 
             mathRelation
         ) ^^ {
-        case "!" ~ (fun: ((RelationHead, Map[Attribute, Any]) => Boolean)) => ((rel: RelationHead, tuple: Map[Attribute, Any]) => if(fun(rel, tuple)) false else true)
+        case "not" ~ (fun: ((RelationHead, Map[Attribute, Any]) => Boolean)) => ((rel: RelationHead, tuple: Map[Attribute, Any]) => if(fun(rel, tuple)) false else true)
         case fun: ((RelationHead, Map[Attribute, Any]) => Boolean) => fun
     }
      
     def relSign2Fun(sign: String) = (arg1: Any, arg2: Any) => sign match {
         case "=" => arg1 == arg2
+        case "!=" => arg1 != arg2
         case "<" => arg1 match {
             case i: Integer => arg2 match {
                 case j: Integer => i < j
@@ -278,7 +279,7 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
                 val returnValue = (for(value <- relation.content(0)) yield value._2).toList(0)
                 (head: RelationHead, tuple: Map[Attribute, Any]) => returnValue
             } else {
-                throw new RuntimeException("")
+                throw new RuntimeException("Relation must be atomic to treat it as a number")
             }
         }
     }
@@ -289,12 +290,13 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     }
     
     lazy val rel: PackratParser[String] = 
-        ("<=" | "<" | ">=" | ">" | "=") ^^ {
+        ("<=" | "<" | ">=" | ">" | "=" | "!=") ^^ {
         case "<=" => "<="
         case "<" => "<"
         case ">=" => ">="
         case ">" => ">"
         case "=" => "="
+        case "!=" => "!="
     }
         
     lazy val lexem: PackratParser[Lexem[Any]] = 
