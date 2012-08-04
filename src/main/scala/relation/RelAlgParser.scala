@@ -10,7 +10,7 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     import lexical.{Keyword, NumericLit, StringLit, Identifier}
     
     lexical.delimiters ++= List("(", ")", "|", ",", "<=", "<", ">=", ">", "!=", "=", "*", ".", "+", "-", "*", "/")
-    lexical.reserved += ("select", "project", "rename", "aggregate", "and", "or", "not", "intersect", "union", "except", "cross", "join", "inner", "leftsemi", "rightsemi", "leftouter", "rightouter", "fullouter")
+    lexical.reserved += ("select", "project", "rename", "aggregate", "and", "or", "not", "intersect", "union", "except", "cross", "join", "inner", "leftsemi", "rightsemi", "leftouter", "rightouter", "fullouter", "null")
 
     def eval(query: String) = {
         val inReader = scala.util.parsing.input.StreamReader(new StringReader(query))
@@ -268,11 +268,13 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     
     lazy val mathAtom: PackratParser[(RelationHead, Map[Attribute, Any]) => Any] =
         (
+            "null" | 
             qualifiedId | 
             lexem | 
             "(" ~> addSubstractTerm <~ ")" |
             "(" ~> relation <~ ")"
         ) ^^ {
+        case "null" => ((_: RelationHead, _: Map[Attribute, Any]) => null)
         case id: String => ((head: RelationHead, tuple: Map[Attribute, Any]) => tuple(head.attribute(id)))
         case lexem: Lexem[_] => ((_: RelationHead, _: Map[Attribute, Any]) => lexem.value)
         case bracedTerm: ((RelationHead, Map[Attribute, Any]) => Any) => bracedTerm

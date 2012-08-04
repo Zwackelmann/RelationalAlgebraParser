@@ -19,7 +19,7 @@ object Main {
         
         try {
         	val res = parser.eval("""
-        	    select|  not(patientId=5)  |patient 
+        	    select |patient=null |(patient join(leftouter) |patientId=patient |patientHatSymptom)  
         	""")
         	println("here is the result: ")
         	println(res.prettyPrint)
