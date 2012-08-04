@@ -10,7 +10,7 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     import lexical.{Keyword, NumericLit, StringLit, Identifier}
     
     lexical.delimiters ++= List("(", ")", "|", ",", "<=", "<", ">=", ">", "!=", "=", "*", ".", "+", "-", "*", "/")
-    lexical.reserved += ("select", "project", "rename", "aggregate", "and", "or", "not", "intersect", "union", "except", "cross", "join", "inner", "leftsemi", "rightsemi", "leftouther", "rightouther", "fullouther")
+    lexical.reserved += ("select", "project", "rename", "aggregate", "and", "or", "not", "intersect", "union", "except", "cross", "join", "inner", "leftsemi", "rightsemi", "leftouter", "rightouter", "fullouter")
 
     def eval(query: String) = {
         val inReader = scala.util.parsing.input.StreamReader(new StringReader(query))
@@ -67,9 +67,9 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
                     case "inner" => rel1.join(rel2, cond)
                     case "leftsemi" => rel1.leftSemiJoin(rel2, cond)
                     case "rightsemi" => rel1.rightSemiJoin(rel2, cond)
-                    case "leftouther" => rel1.leftOutherJoin(rel2, cond)
-                    case "rightouther" => rel1.rightOutherJoin(rel2, cond)
-                    case "fullouther" => rel1.fullOutherJoin(rel2, cond)
+                    case "leftouter" => rel1.leftOuterJoin(rel2, cond)
+                    case "rightouter" => rel1.rightOuterJoin(rel2, cond)
+                    case "fullouter" => rel1.fullOuterJoin(rel2, cond)
                 }
         case rel1 ~ Some(
 	            "join" ~ "(" ~ joinType ~ ")" ~ (
@@ -78,21 +78,21 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
                 	case "inner" => rel1.join(rel2, attNameList2Cond(attNameList, rel1, rel2))
                     case "leftsemi" => rel1.leftSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
                     case "rightsemi" => rel1.rightSemiJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
-                    case "leftouther" => rel1.leftOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
-                    case "rightouther" => rel1.rightOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
-                    case "fullouther" => rel1.fullOutherJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "leftouter" => rel1.leftOuterJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "rightouter" => rel1.rightOuterJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
+                    case "fullouter" => rel1.fullOuterJoin(rel2, attNameList2Cond(attNameList, rel1, rel2))
                 }
 	    case rel1 ~ None => rel1
     }
     
     lazy val joinType: PackratParser[String] = 
-        ("inner" | "leftsemi" | "rightsemi" | "leftouther" | "rightouther" | "fullouther") ^^ {
+        ("inner" | "leftsemi" | "rightsemi" | "leftouter" | "rightouter" | "fullouter") ^^ {
         case "inner" => "inner"
         case "leftsemi" => "leftsemi"
         case "rightsemi" => "rightsemi"
-        case "leftouther" => "leftouther"
-        case "rightouther" => "rightouther"
-        case "fullouther" => "fullouther"
+        case "leftouter" => "leftouter"
+        case "rightouter" => "rightouter"
+        case "fullouter" => "fullouter"
     }
         
     lazy val relation3: PackratParser[Relation] = 

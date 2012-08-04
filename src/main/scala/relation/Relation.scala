@@ -124,7 +124,7 @@ class Relation(val relationHead: RelationHead, val content: Set[Map[Attribute, A
         new Relation(relation.relationHead, for(tuple <- content; tuple2 <- relation.content if(cond(tempRelationHead, tuple ++ tuple2))) yield tuple2)
     }
     
-    def leftOutherJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+    def leftOuterJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
         val relHead = relationHead.union(relation.relationHead)
         val newContent = (for(tuple <- content) yield {
             val joinPartnersForTuple = for(tuple2 <- relation.content if(cond(relHead, tuple ++ tuple2))) yield tuple ++ tuple2
@@ -141,7 +141,7 @@ class Relation(val relationHead: RelationHead, val content: Set[Map[Attribute, A
         )
     }
     
-    def rightOutherJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+    def rightOuterJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
         val relHead = relationHead.union(relation.relationHead)
         val newContent = (for(tuple <- relation.content) yield {
             val joinPartnersForTuple = for(tuple2 <- content if(cond(relHead, tuple ++ tuple2))) yield tuple ++ tuple2
@@ -158,9 +158,9 @@ class Relation(val relationHead: RelationHead, val content: Set[Map[Attribute, A
         )
     }
     
-    def fullOutherJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
+    def fullOuterJoin(relation: Relation, cond: ((RelationHead, Map[Attribute, Any]) => Boolean)) = {
         val relHead = relationHead.union(relation.relationHead)
-        val newContentLeftOutherJoin = (for(tuple <- content) yield {
+        val newContentLeftOuterJoin = (for(tuple <- content) yield {
             val joinPartnersForTuple = for(tuple2 <- relation.content if(cond(relHead, tuple ++ tuple2))) yield tuple ++ tuple2
             
             if(joinPartnersForTuple.isEmpty) {
@@ -181,7 +181,7 @@ class Relation(val relationHead: RelationHead, val content: Set[Map[Attribute, A
         }).flatten.flatten
         
         new Relation(
-            relHead, (newContentLeftOutherJoin ++ missingTuplesFromRightRelation)
+            relHead, (newContentLeftOuterJoin ++ missingTuplesFromRightRelation)
         )
     }
     
