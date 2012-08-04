@@ -19,7 +19,7 @@ object Main {
         
         try {
         	val res = parser.eval("""
-        	    select | not (patientId=5 or patientId=4) and (not(not(patientId != 6)))| patient 
+        	    select|  not(patientId=5)  |patient 
         	""")
         	println("here is the result: ")
         	println(res.prettyPrint)
