@@ -185,19 +185,10 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     }
 
     lazy val conjuncTerm: PackratParser[(RelationHead, Map[Attribute, Any]) => Boolean] = 
-        rep1sep(negateTerm, "and") ^^ {
+        rep1sep(relationTerm, "and") ^^ {
         case negateTerms => negateTerms.reduceLeft((oldFun, term) => ((rel: RelationHead, tuple: Map[Attribute, Any]) => oldFun(rel, tuple) && term(rel, tuple)))
     }
         
-    lazy val negateTerm: PackratParser[(RelationHead, Map[Attribute, Any]) => Boolean] = 
-        (
-            "not" ~ mathRelation | 
-            mathRelation
-        ) ^^ {
-        case "not" ~ (fun: ((RelationHead, Map[Attribute, Any]) => Boolean)) => ((rel: RelationHead, tuple: Map[Attribute, Any]) => if(fun(rel, tuple)) false else true)
-        case fun: ((RelationHead, Map[Attribute, Any]) => Boolean) => fun
-    }
-     
     def relSign2Fun(sign: String) = (arg1: Any, arg2: Any) => sign match {
         case "=" => arg1 == arg2
         case "!=" => arg1 != arg2
@@ -233,17 +224,26 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     }
     
     
-    lazy val mathRelation: PackratParser[(RelationHead, Map[Attribute, Any]) => Boolean] = 
+    lazy val relationTerm: PackratParser[(RelationHead, Map[Attribute, Any]) => Boolean] = 
         (
-            addSubstractTerm ~ rel ~ addSubstractTerm |
-            "(" ~ disjuncTerm ~ ")"
+            negateTerm | 
+            addSubstractTerm ~ rel ~ addSubstractTerm
         ) ^^ {
+        case negateFun: ((RelationHead, Map[Attribute, Any]) => Boolean) => negateFun
         case (term1: ((RelationHead, Map[Attribute, Any]) => Any)) ~ 
              (relSign: String) ~ 
              (term2: ((RelationHead, Map[Attribute, Any]) => Any)) => 
                  (head: RelationHead, tuple: Map[Attribute, Any]) => 
                      relSign2Fun(relSign)(term1(head, tuple), term2(head, tuple))
-        case "(" ~ (disjuncTerm: ((RelationHead, Map[Attribute, Any]) => Boolean)) ~ ")" => disjuncTerm
+    }
+    
+    lazy val negateTerm: PackratParser[(RelationHead, Map[Attribute, Any]) => Boolean] = 
+        (
+            "not" ~ "(" ~ disjuncTerm ~ ")" | 
+            "(" ~ disjuncTerm ~ ")"
+        ) ^^ {
+        case "not" ~ "(" ~ (disjuncFun: ((RelationHead, Map[Attribute, Any]) => Boolean)) ~ ")" => ((rel: RelationHead, tuple: Map[Attribute, Any]) => if(disjuncFun(rel, tuple)) false else true)
+        case "(" ~ (disjuncFun: ((RelationHead, Map[Attribute, Any]) => Boolean)) ~ ")" => disjuncFun
     }
     
     lazy val addSubstractTerm: PackratParser[(RelationHead, Map[Attribute, Any]) => Any] = 
