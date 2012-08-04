@@ -19,7 +19,7 @@ object Main {
         
         try {
         	val res = parser.eval("""
-        	    aggregate|count(*)| (patient join(fullouther)|patientId=patient| patientHatSymptom)
+        	    patient  except  (select |patientId<=3| patient)
         	""")
         	println("here is the result: ")
         	println(res.prettyPrint)

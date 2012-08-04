@@ -20,7 +20,7 @@ object RelationParser extends StandardTokenParsers {
     def relation(relationName: String): Parser[Relation] = 
         relationHead(relationName) ~ relationContent ^^ {
         case relationHead ~ relationContent => 
-            new Relation(relationHead, relationContent.map(tuple => relationHead.atts.zip(tuple).toMap))
+            new Relation(relationHead, relationContent.map(tuple => relationHead.atts.zip(tuple).toMap).toSet)
     }
     
     def relationHead(relationName: String): Parser[RelationHead] = 

@@ -36,12 +36,12 @@ class RelationHead(val atts: List[Attribute]) {
     
     def attribute(att: Attribute) = (if(atts.contains(att)) att else throw new RuntimeException("Attribute " + att + " does not exist"))
     
-    def union(relationHead: RelationHead) = new RelationHead(atts ::: relationHead.atts)
+    def union(relationHead: RelationHead) = new RelationHead(atts ++ relationHead.atts)
     
-    def apply(values: List[Map[String, Any]]) = 
+    def apply(values: Set[Map[String, Any]]) = 
         values.map(tuple => tuple.map(key_value => attribute(key_value._1) -> key_value._2))
     
-    def fromAttributeTuples(values: List[Map[Attribute, Any]]) = 
+    def fromAttributeTuples(values: Set[Map[Attribute, Any]]) = 
         values.map(tuple => tuple.map(key_value => attribute(key_value._1) -> key_value._2))
     
     override def toString = atts.toString
@@ -57,7 +57,7 @@ object Relation {
     }
 }
 
-class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, Any]]) {
+class Relation(val relationHead: RelationHead, val content: Set[Map[Attribute, Any]]) {
     def attribute(attName: String) = relationHead.attribute(attName)
     
     def select(cond: (Map[Attribute, Any] => Boolean)) = 
@@ -66,7 +66,7 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
     def project(attNameList: List[String]) = 
         new Relation(
             new RelationHead(attNameList.map(attribute(_))),
-            content.map((tuple) => attNameList.map(attName => attribute(attName) -> tuple(attribute(attName))).toMap).distinct
+            content.map((tuple) => attNameList.map(attName => attribute(attName) -> tuple(attribute(attName))).toMap)
         )
     
     def rename(newRelName: Option[String], attNameList: Option[List[String]]) = {
@@ -185,7 +185,7 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
         )
     }
     
-    def aggregate(attNameList: List[String], aggFun: (List[Map[Attribute, Any]] => Any)) = {
+    def aggregate(attNameList: List[String], aggFun: (Set[Map[Attribute, Any]] => Any)) = {
         val aggregatedColAttribute = Attribute("col_" + (attNameList.size + 1), None)    
         val attList = attNameList.map(attribute(_))        
         
@@ -198,24 +198,24 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
 	                .map((groupAtts_group) => 
 	                    (groupAtts_group._1 + (aggregatedColAttribute -> aggFun(groupAtts_group._2)))
 	                )
-	                .toList
+	                .toSet
             )
         )
     }
     
-    def aggregate(aggFun: (List[Map[Attribute, Any]] => Any)) = {
+    def aggregate(aggFun: (Set[Map[Attribute, Any]] => Any)) = {
         val aggregatedColName = "col_0"
         
         val relationHead = new RelationHead(List(Attribute(aggregatedColName, None)))
         new Relation(
             relationHead,
-            relationHead(List(Map(aggregatedColName -> aggFun(content))))
+            relationHead(Set(Map(aggregatedColName -> aggFun(content))))
         )
     }
     
     private def setOperator(
         rel: Relation, 
-        setOperation: (List[Map[Attribute, Any]], List[Map[Attribute, Any]]) => List[Map[Attribute, Any]]
+        setOperation: (Set[Map[Attribute, Any]], Set[Map[Attribute, Any]]) => Set[Map[Attribute, Any]]
     ) = {
         if(rel.relationHead.atts.size != relationHead.atts.size) {
             throw new IllegalArgumentException("Number of arguments for set operator does not match")
@@ -229,14 +229,14 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
         val newContent = (
             setOperation((for(tuple <- content) yield (tuple.map(att_value => thisRelMapping(att_value._1) -> att_value._2))),
             (for(tuple <- rel.content) yield (tuple.map(att_value => otherRelMapping(att_value._1) -> att_value._2))))
-        ).distinct
+        )
         
         new Relation(newRelationHead, newContent)
     }
     
-    def intersect(rel: Relation) = setOperator(rel, (a: List[Map[Attribute, Any]], b: List[Map[Attribute, Any]]) => a intersect b)
-    def union(rel: Relation) = setOperator(rel, (a: List[Map[Attribute, Any]], b: List[Map[Attribute, Any]]) => a union b)
-    def except(rel: Relation) = setOperator(rel, (a: List[Map[Attribute, Any]], b: List[Map[Attribute, Any]]) => a -- b)
+    def intersect(rel: Relation) = setOperator(rel, (a: Set[Map[Attribute, Any]], b: Set[Map[Attribute, Any]]) => a intersect b)
+    def union(rel: Relation) = setOperator(rel, (a: Set[Map[Attribute, Any]], b: Set[Map[Attribute, Any]]) => a union b)
+    def except(rel: Relation) = setOperator(rel, (a: Set[Map[Attribute, Any]], b: Set[Map[Attribute, Any]]) => a -- b)
     
     def crossProduct(rel: Relation) = {
         val thisRelHeaderMapping = relationHead.atts.map(att => att -> new Attribute(att.name, att.origin)).toMap
@@ -257,7 +257,7 @@ class Relation(val relationHead: RelationHead, val content: List[Map[Attribute, 
         val sb = new StringBuffer
         
         def calulateAttributeWidth(att: Attribute) = 
-        	(content.map(tuple => (if(tuple(att) == null) "null" else tuple(att).toString()).length) :+ att.name.length).max
+        	(content.map(tuple => (if(tuple(att) == null) "null" else tuple(att).toString()).length) + att.name.length).max
         
         val attributeWidths = relationHead.atts.map(att => att -> calulateAttributeWidth(att)).toMap
         

@@ -15,20 +15,22 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
     def eval(query: String) = {
         val inReader = scala.util.parsing.input.StreamReader(new StringReader(query))
         
-        relation(new PackratReader(new lexical.Scanner(inReader))) match {
+        relationPhrase(new PackratReader(new lexical.Scanner(inReader))) match {
         	case Success(rel, _) => rel
         	case Failure(msg, _) => throw new RuntimeException(msg)
         	case Error(msg, _) => throw new RuntimeException(msg)
         }
     }
     
+    lazy val relationPhrase: PackratParser[Relation] = phrase(relation)
+    
     lazy val relation: PackratParser[Relation] = 
-        phrase(relation2 ~ (
+        relation2 ~ (
             setOperatorSymbol ~ (
                 relation | 
                 error("missing relation after set operator")
             )
-        ).?) ^^ {
+        ).? ^^ {
         case (rel: Relation) ~ Some(operator ~ (rel2: Relation)) => {
             operator match {
                 case "intersect" => rel.intersect(rel2)
@@ -103,36 +105,36 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
         case 
             (attList: List[String]) ~ 
             "aggregate" ~ 
-            ((aggFun: ((Relation, List[Map[Attribute, Any]]) => Any)) ~ 
+            ((aggFun: ((Relation, Set[Map[Attribute, Any]]) => Any)) ~ 
             (relation: Relation))
                 => relation.aggregate(attList, aggFun(relation, _))
         case 
             "aggregate" ~ 
-            ((aggFun: ((Relation, List[Map[Attribute, Any]]) => Any)) ~ 
+            ((aggFun: ((Relation, Set[Map[Attribute, Any]]) => Any)) ~ 
             (relation: Relation))
                 => relation.aggregate(aggFun(relation, _))
     }
     
-    lazy val aggFun: PackratParser[(Relation, List[Map[Attribute, Any]]) => Any] =
+    lazy val aggFun: PackratParser[(Relation, Set[Map[Attribute, Any]]) => Any] =
         "|" ~ aggFun2 ~ "|" ^^ {
         case "|" ~ aggFun2 ~ "|" => aggFun2
     }
     
-    lazy val aggFun2: PackratParser[(Relation, List[Map[Attribute, Any]]) => Any] = 
+    lazy val aggFun2: PackratParser[(Relation, Set[Map[Attribute, Any]]) => Any] = 
         (
             ident ~ "(" ~ ident ~ ")" | 
             ident ~ "(" ~ "*" ~ ")" 
         ) ^^ {
-        case funName ~ "(" ~ "*" ~ ")" => (relation: Relation, group: List[Map[Attribute, Any]]) => group.size
+        case funName ~ "(" ~ "*" ~ ")" => (relation: Relation, group: Set[Map[Attribute, Any]]) => group.size
         
         case funName ~ "(" ~ attName ~ ")" => funName match {
             case "sum" => (
-                (relation: Relation, group: List[Map[Attribute, Any]]) => 
+                (relation: Relation, group: Set[Map[Attribute, Any]]) => 
                     (0 /: group)(
                         (old, tuple) => old + tuple(relation.attribute(attName)).asInstanceOf[Int]
                     )
             )
-            case "count" => (relation: Relation, group: List[Map[Attribute, Any]]) => 
+            case "count" => (relation: Relation, group: Set[Map[Attribute, Any]]) => 
                 (0 /: group)(
                     (old, tuple) => old + 
 	                    (if(
@@ -140,9 +142,9 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
 	                        tuple.getOrElse(relation.attribute(attName), None) != null
 	                    ) 1 else 0)
                 )
-            case "max" => (relation: Relation, group: List[Map[Attribute, Any]]) => 
+            case "max" => (relation: Relation, group: Set[Map[Attribute, Any]]) => 
                 group.map(tuple => tuple(relation.attribute(attName)).asInstanceOf[Int]).max
-            case "min" => (relation: Relation, group: List[Map[Attribute, Any]]) => 
+            case "min" => (relation: Relation, group: Set[Map[Attribute, Any]]) => 
                 group.map(tuple => tuple(relation.attribute(attName)).asInstanceOf[Int]).min
             case _ => throw new RuntimeException()
         }
@@ -275,8 +277,8 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
         case lexem: Lexem[_] => ((_: RelationHead, _: Map[Attribute, Any]) => lexem.value)
         case bracedTerm: ((RelationHead, Map[Attribute, Any]) => Any) => bracedTerm
         case relation: Relation => {
-            if(relation.content.size == 1 && relation.content(0).size == 1) {
-                val returnValue = (for(value <- relation.content(0)) yield value._2).toList(0)
+            if(relation.content.size == 1 && relation.content.toList(0).size == 1) {
+                val returnValue = (for(value <- relation.content.toList(0)) yield value._2).toList(0)
                 (head: RelationHead, tuple: Map[Attribute, Any]) => returnValue
             } else {
                 throw new RuntimeException("Relation must be atomic to treat it as a number")
