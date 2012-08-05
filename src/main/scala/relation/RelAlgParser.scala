@@ -29,7 +29,8 @@ class RelAlgParser(scope: Scope) extends StandardTokenParsers with PackratParser
             setOperatorSymbol ~ (
                 relation | 
                 error("missing relation after set operator")
-            )
+            ) |
+            error("missing or invalid set operator after relation")
         ).? ^^ {
         case (rel: Relation) ~ Some(operator ~ (rel2: Relation)) => {
             operator match {
